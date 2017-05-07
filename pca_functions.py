@@ -800,7 +800,6 @@ class pca_bundle(object):
             print "\tsample_scores:", sample_scores.shape
             print "\tfeature_scores: ", feature_scores.shape
             print '\tnum components: ', num_good_comps, ' (threshold: ', self.comp_var_threshold, ')', comp_variance
-            print"-----------------------"
 
         self.feature_scores = feature_scores
         self.sample_scores = sample_scores

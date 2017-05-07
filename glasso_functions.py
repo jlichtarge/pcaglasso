@@ -26,7 +26,7 @@ class glasso_bundle(object):
         return count 
 
     def distance_calc(self,matrix):
-        """    calculates distance value of n-dimensional coordinate system
+        """    calculates Euclidian distance within an n-dimensional coordinate system
             example:
                 distance_calc(1.5) = 1.5
                 distance_calc([1,2] = sqrt(1^2+2^2) = sqrt(3)
@@ -359,8 +359,13 @@ class glasso_bundle(object):
             mkdir(self.savedir + folder)
         plt.savefig(self._avoid_overwrite(self.savedir+folder+saveinfo+'.pdf'), bbox_inches="tight")
         plt.clf()
+        self._save_network_graph(folder=folder,tag=saveinfo)
 
     def _avoid_overwrite(self, save_location):
+        '''Helper function to avoid overwriting files
+       
+        Instead of overwriting, append a counter to end of file name
+        '''
         inc = 1
         while path.isfile(save_location):
             save_location = save_location.rstrip('.pdf')
@@ -371,23 +376,30 @@ class glasso_bundle(object):
         return save_location
     
     def _initialize_network(self):
+        '''Helper function for initializing network.
+        
+        Save a graph of the precision matrix.
+        If positions are unassigned, assign them
+        '''
         if self.verbose:
             print "\tinitializing network ..."
         D = nx.Graph(np.absolute(self.prec))
-        
+        self.D = D
         if self.pos == None:
             self.pos = self._set_node_positions(D)
-            self._save_network_graph(D)
             
         self._set_edge_attributes(D)
         self._set_node_attributes(D)
-        
         if self.verbose:
             print "\t... done"
-        return D
 
-    def _save_network_graph(self):
-        nx.write_gml(self.D,self._avoid_overwrite(self.savedir+"network.gml"))
+    def _save_network_graph(self, folder, tag = ''):
+        if tag is not '' and tag[0] is not '_':
+            tag = '_'+tag
+        save_location = self._avoid_overwrite(self.savedir+folder+"network"+tag+".gml")
+        if self.verbose:
+            print "\t\tsaving network"
+        nx.write_gml(self.D,save_location)
         return
 
     def _run_glasso_cv(self):
@@ -395,8 +407,8 @@ class glasso_bundle(object):
             print "\tfinding GL alpha with cross-validation..."
             print "\t\tworking.... (this can take a while)"
         glcv = GraphLassoCV()
-        glcv.fit(self.data)
-        if self.verbose: 
+        glcv.fit(self.data, alphas1=15)
+        if self.verbose:
             print "\t\t...done"
         return glcv.alpha_
 
@@ -422,7 +434,7 @@ class glasso_bundle(object):
         self.verbose = verbose
         self.pos = pos
 
-        self.current_type_combo = [0,1]    
+        self.current_type_combo = [0,1]  
         self.component = 0
         
         if self.verbose: 
@@ -449,4 +461,4 @@ class glasso_bundle(object):
             print "\tprec:",glprec.shape, ", nonzero vals:",self._count_nz_offd(glprec)
             print "\tcov:",glcov.shape, ", nonzero vals:",self._count_nz_offd(glcov)
 
-        self.D = self._initialize_network()
+        self._initialize_network()

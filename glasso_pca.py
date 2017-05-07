@@ -106,7 +106,6 @@ class GLASSO_PCA(object):
     #these vars can be set for programmatic use (rather than cmd-line interactive use) 
     INPUTFILE = 'all_clean.txt'
     PCA_COMP_VAR_THRESHOLD = 0.1
-#     GLASSO_ALPHA = 0.58
     GLASSO_ALPHA = -1
     
     
@@ -115,21 +114,21 @@ class GLASSO_PCA(object):
         self.io = dataio(self.inputfile, use_types=True, verbose = self.verbose)
     
         self.pca = pca_bundle(self.io.savedir,
-                         self.io.data,
-                         self.io.rawdata,
-                         self.io.feature_names,
-                         self.io.sample_names,
-                         self.io.types,
-                         comp_var_threshold = self.pca_comp_var_threshold,
-                         verbose = self.verbose)
+                            self.io.data,
+                            self.io.rawdata,
+                            self.io.feature_names,
+                            self.io.sample_names,
+                            self.io.types,
+                            comp_var_threshold = self.pca_comp_var_threshold,
+                            verbose = self.verbose)
         
         self.gl = glasso_bundle(self.io.savedir, 
-                           self.io.data, 
-                           self.io.rawdata, 
-                           self.io.types, 
-                           self.io.feature_names, 
-                           alpha = self.gl_alpha,
-                           verbose = self.verbose)
+                                self.io.data, 
+                                self.io.rawdata, 
+                                self.io.types, 
+                                self.io.feature_names, 
+                                alpha = self.gl_alpha,
+                                verbose = self.verbose)
 #         gl.network_plot(draw_labels=True, glasso_only = True, node_size_selector ='default')
 #     #     gl.network_plot(draw_labels=True, glasso_only = True, node_size_selector ='network_edge_weight')
 #     #     gl.network_plot(draw_labels=True, glasso_only = True, node_size_selector ='delta_conc_scaled')
@@ -190,6 +189,30 @@ class GLASSO_PCA(object):
             print '\tgl alpha:', gl_alpha
             print '\tpca threshold:', pca_comp_var_threshold
     
+    def quick(self):
+        print "Running PCA on sequential type pairs:"
+        for x in range(len(self.pca.types)-1):
+            select_types = [x,x+1]
+            print 'Running PCA...'
+            self.pca.run_pca(select_types = select_types)
+            print '...done'
+            
+            print 'Generating Graphs...'
+            pca_folder = 'pca_plots/'+self.pca.types[select_types[0]]['name']+'_'+self.pca.types[select_types[1]]['name']+'/'
+            self.pca.comps_plot_1d(folder=pca_folder)
+            self.pca.comps_explained_var_plot(folder=pca_folder, tag='')
+            self.gl.load_pca_data(self.pca.feature_scores_dict, self.pca.run_types_by_num, pca_component = 0)
+            self.gl.network_plot(glasso_only = False,
+                                    node_color_selector    = 'pca_type',
+                                    node_size_selector     = 'delta_conc_scaled',
+                                    draw_labels            = True,
+                                    show_disconnected_nodes= True,
+                                    folder                 = pca_folder,
+                                    tag                    = '')
+            print '...done'
+            print"-----------------------"
+
+        
     def glasso_plots(self):
         glasso_folder = 'glasso_plots/'
         self.gl.network_plot(draw_labels=True,
@@ -198,6 +221,7 @@ class GLASSO_PCA(object):
                              folder=glasso_folder)
         self.gl.network_node_attributes_plot(folder=glasso_folder)
         self.gl.network_node_attributes_file(folder=glasso_folder)
+        self.gl._save_network_graph(folder=glasso_folder)
 
     def pca_plots(self, select_types=None):
         pca_folder = 'pca_plots/'
@@ -215,7 +239,7 @@ class GLASSO_PCA(object):
         self.pca.gen_boxplots()
 
     
-    def old_code(self):
+#     def old_code(self):
         #sorted(zip(features, loadvals, color_range), key = lambda x: x[1])
     #     for j, fd in enumerate(feature_data_list):
     #         if j %2 ==0:

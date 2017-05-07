@@ -51,8 +51,9 @@ class Prompt(Cmd):
         """Runs PCA on selected type pair"""
         print len(self.gp.pca.types)
         if len(args) == 0:
-            print "wrong number of args, try again"
+            print "No types manually selected: defaulting to 0,1"
             print "example: \'run_pca 0 1\'"
+            self.help_pca_pair()
             return
         else:
             args = args.split()

@@ -31,25 +31,6 @@ class pca_bundle(object):
     def type_to_color(self, type_label):
         return [x['color'] for x in self.types if x['name'] == type_label][0]
     
-#     def init_type_to_color(self, sample_types_set, COLORMAP = 'spectral'):
-#         #COLORMAP options: spectral, viridis, plamsa, magma
-#     ##strip sample names after first '_' to isolate group labels 
-#         sample_labels_list = map(lambda x: x.split("_")[0], self.sample_names)
-#         sample_labels_set = self.ordered_set(sample_labels_list)        
-#         print "\t", len(sample_labels_set),"labels found in samples:",sample_labels_set
-#         sample_labels_set = sample_types_set
-#         ##GENERATE LIST OF COLORS to be assigned to different types: range (0,1)
-#         label_colors_list = [(float(i) +.5) / len(sample_labels_set) for i in range(len(sample_labels_set))]
-# #         print "\tcolorrange:",label_colors_list
-#         
-#         #MAP TO COLORMAP (RGB space)
-#         #'spectral' chosen because different points correspond to different categories
-#         cm = plt.get_cmap(COLORMAP)
-#         label_colors_list = [cm(x) for x in label_colors_list]
-# #         print "\tlabel_colors_list mapped:",label_colors_list
-#          
-#         return dict(zip(sample_labels_set,label_colors_list))
-    
     def comps_explained_var_plot(self, folder='', tag=''):
         types = 'all' if self.run_types_by_num == range(len(self.types)) else str(self.run_types_by_num)
         
@@ -57,12 +38,12 @@ class pca_bundle(object):
         ax = fig.add_subplot(111) 
         ax.plot(range(1, len(self.comp_var) + 1), self.comp_var)
         ax.set_xlabel('component #')
-        ax.set_title('PCA Explained Var: types '+types)
+        ax.set_title('PCA Explained Var: types ' + types)
         ax.set_ylabel('explained variance')
-        ax.set_xbound((0.5,len(self.comp_var) + 0.5))
-        ax.set_ybound((0,max(self.comp_var) + 0.1))
-        ax.set_xticks(range(1,len(self.comp_var)+1))
-        ax.axhline(y=self.comp_var_threshold, xmin = 0, xmax = len(self.comp_var) + 0.5, linestyle='dotted')        
+        ax.set_xbound((0.5, len(self.comp_var) + 0.5))
+        ax.set_ybound((0, max(self.comp_var) + 0.1))
+        ax.set_xticks(range(1, len(self.comp_var) + 1))
+        ax.axhline(y=self.comp_var_threshold, xmin=0, xmax=len(self.comp_var) + 0.5, linestyle='dotted')        
         if not path.isdir(self.savedir + folder):
             mkdir(self.savedir + folder)
         plt.savefig(self._avoid_overwrite(self.savedir + folder + 'pca_explained_var' + tag + '.pdf'), bbox_inches="tight")
@@ -72,7 +53,7 @@ class pca_bundle(object):
 
     def comps_plot_1d(self,
                       folder='',
-                      show_legend = True,
+                      show_legend=True,
                       tag=''):
         '''plot pca samples by component score (in 1 dimension)
         
@@ -140,30 +121,6 @@ class pca_bundle(object):
         comps = map(lambda x: int(x) - 1, components)  # MINUS 1 because indexing starts at 1
         print "\nscores plot 2d: \n\tanalyzing components", comps
         figname = '2d sample_scores plot for comps:' + components
-        
-        
-#         sample_types = [self.sample_name_to_type(x) for x in samples]    
-#         sample_set = self.ordered_set(sample_types)
-#         print "\t", len(sample_set),"labels found in samples:",sample_set
-#         
-#         #generate list of colors to be assigned to different types: range (0,1)
-#         color_range = [(float(i) / len(sample_set)) +.5 / len(sample_set) for i in range(len(sample_set))]
-#     #     print "\ncolorrange:",color_range
-#         #map to colormap, 'spectral' chosen because different points correspond to different categories
-#         cm = plt.get_cmap('spectral')
-#         color_range = [cm(x) for x in color_range]
-#     #     print "\ncolorrange mapped:",color_range
-#         
-#         color_lookup = dict(zip(sample_set,color_range))
-#     #     print '\ncolor_lookup:'
-#     #     for i in color_lookup.items():
-#     #         print i
-#         
-#         type_loc = {pos:val for pos,val in enumerate(sample_types)}
-    #     print "\ntype loc:"
-    #     for i in type_loc.iteritems():
-    #         print i
-    #     print "\n\n"
         
         fig = plt.figure(figsize=(10, 10))
         cm = plt.get_cmap('spectral')
@@ -630,140 +587,6 @@ class pca_bundle(object):
 #             print self.data[:,self.feature_names.index(feat)]
 #         print self.data.shape        
 
-    def boxplot_old(self, component=0, number_boxplots=3, tag=None):
-        SAMPLE_ALPHA = 1.0
-        print 'BOXPLOT:'
-        print '\tcomponent:', component
-        np_feat_names = np.array([self.feature_names]).T
-        comp_score = np.array([self.feature_scores[:, component]]).T
-#         print comp_score.shape
-#         print np_feat_names.shape
-        feature_names_comp = np.concatenate((np_feat_names, comp_score), axis=1)
-#         print self.feature_names[0:3]
-#         print self.feature_scores[0:3]
-#         print comp_score[0:3]
-        a = feature_names_comp.tolist()
-#         for i in a:
-#             print i
-        a = sorted(a, key=lambda x: abs(float(x[1])), reverse=True)
-#         for i in a:
-#             print i
-        feature_names_to_plot = [x[0] for x in a[0:number_boxplots]]
-#         print feature_names_to_plot
-        
-        fig, axarr = plt.subplots(number_boxplots, 2, sharex=True, sharey=False)
-        fig.suptitle('boxplot comp' + str(component) + ' significant features')
-
-        for j, feat in enumerate(feature_names_to_plot):
-            boxplot_data = []
-            feat_index = self.feature_names.index(feat)
-            type_data_dict = {}
-            orderseen = []
-            for i, sample in enumerate(self.run_sample_names):
-                sample_type = self.sample_name_to_type(sample)
-                if sample_type in type_data_dict.keys():
-                    type_data_dict[sample_type] += [self.data[i][feat_index]]
-                else:
-                    type_data_dict[sample_type] = [self.data[i][feat_index]]
-                    orderseen += [sample_type]
-#             print feat,
-#             print feat_index
-#             print type_data_dict.items()
-#             print orderseen
-#             print '++++\n'
-            for typesamp in orderseen:
-                boxplot_data += [type_data_dict[typesamp]]
-            ax = axarr[j][0]
-            ax.boxplot(boxplot_data)
-            ax.set_xticklabels(orderseen)
-            ax.get_xaxis().tick_bottom()  # remove top ticks
-            ax.get_yaxis().tick_left()  # remove right ticks
-            ax.set_title(feat)
-            axarr[j][1].set_axis_off()
-
-        # ADD COMPONENT SAMPLE PCA SCORES, COLORBAR
-        #=======================================================================
-        ax_samp = fig.add_subplot(1, 2, 2)
-
-        scores = self.sample_scores
-        seen = set()
-#         print "SAMPLE SCORES:",scores.shape
-        for n in range(scores.shape[0]):  # iterate through sample score positions
-            type_label = self.sample_name_to_type(self.run_sample_names[n])
-            colorRBGA = self.type_to_color(type_label)
-    #         print type_label, " : ", colorRBGA
-#                ax.plot(sample_scores[0:5,n],np.ones(5)*n,'d', markersize=30, color='blue',\
-#                      alpha=0.5, type_label='hESC')
-#             print [0,scores[n,component]]
-            ax_samp.plot(0, scores[n, component], 'D', markersize=15, color=colorRBGA, alpha=SAMPLE_ALPHA, label=type_label if type_label not in seen else "")
-            seen.add(type_label)  #=======================================================================
-        ax_samp.set_xlabel('Sample Scores\tFeature Scores')
-        ax_samp.get_xaxis().set_ticks([])
-        
-        feat_scores = self.feature_scores
-#         print "FEAT SCORES:",feat_scores.shape
-        
-        loadvals = [x for x in feat_scores[:, component]]
-#         abs_loadvals = [abs(x) for x in loadvals]
-        cm = plt.get_cmap('RdBu')
-        color_range = [cm(x + .5)[:-1] for x in loadvals]
-    #     print 'loadvals',len(loadvals),loadvals
-    #     print 'features',len(features),features
-    #     print 'colors',len(color_range),color_range
-        feature_data = sorted(zip(self.feature_names, loadvals, color_range), key=lambda x: x[1])
-        #=======================================================================
-#         for i in range(len(feature_data)):
-#             if abs(feature_data[i][1]) > cutoff: ##if this point beats cutoff
-#                 ax.plot(feature_data[i][1],i,'s',color=feature_data[i][2])
-#     #             if feature_data[i][1] > 0: 
-#     #                 h_align = 'left' #vertical
-#     #             else:
-#     #                 h_align = 'right'
-#     #             ax.text(feature_data[i][1],i, ' '+feature_data[i][0], rotation = 0, fontsize = '8', rotation_mode = 'anchor')
-#                 ax.annotate(s = '  '+feature_data[i][0]+'  ', 
-#                             xy = (feature_data[i][1],i), 
-#                             horizontalalignment = 'left' if feature_data[i][1] > 0 else 'right', 
-#                             verticalalignment = 'center',
-#                             fontsize = '8')
-#             else:
-#                 ax.plot(feature_data[i][1],i,'o',color=feature_data[i][2])
-#             mn = min(0,feature_data[i][1])
-#             mx = max(0,feature_data[i][1])
-#             ax.hlines(i,mn,mx,linestyles = 'dotted')
-#         
-#         ax.vlines(0,-1,len(features),linestyles = 'solid')
-#         ax.set_yticks(range(len(features)))
-#         ax.set_yticklabels([x[0] for x in feature_data], fontsize = '6')
-        #=======================================================================
-        SCALAR = 5
-        for n in range(len(feature_data)):  # iterate through feature score positions
-    #         print type_label, " : ", colorRBGA
-#                ax.plot(sample_scores[0:5,n],np.ones(5)*n,'d', markersize=30, color='blue',\
-#                      alpha=0.5, type_label='hESC')
-#             print [0,scores[n,component]]
-            this_feature = feature_data[n][0]
-#             if this_feature in feature_names_to_plot:
-#                 print this_feature,'DFADFDS', feature_data[n][1]
-            ax_samp.plot(1, feature_data[n][1] * SCALAR, \
-                         's' if this_feature in feature_names_to_plot else '.', \
-                         color=feature_data[n][2], \
-                         label=this_feature if this_feature in feature_names_to_plot else None)
-            if this_feature in feature_names_to_plot:
-                ax_samp.annotate(s='  ' + feature_data[n][0] + '  ',
-                            xy=(1, feature_data[n][1] * SCALAR),
-#                             horizontalalignment = 'left' if feature_data[i][1] > 0 else 'right', 
-#                             verticalalignment = 'center',
-                            fontsize='8')
-#             ax_feat.plot([0,scores[n,component]],'D',markersize=15, color=colorRBGA, alpha=0.5, label = type_label if type_label not in seen else "")
-#             seen.add(type_label)
-        ax_samp.set_xbound((-0.5, 1.5))
-        plt.savefig(self._avoid_overwrite(self.savedir + str(tag if tag else '') + 'boxplot_comp' + str(component) + '.pdf'), bbox_inches="tight")
-        plt.legend(loc='best', bbox_to_anchor=(.85, .4, 1, 1))
-
-        plt.clf()
-#             print self.data[:,self.feature_names.index(feat)]
-#         print self.data.shape
-        
     def sample_name_to_type(self, sample_name):
         return sample_name.split("_")[0]
 
@@ -790,7 +613,7 @@ class pca_bundle(object):
         num_good_comps = len([x for x in pca.explained_variance_ratio_ if x > self.comp_var_threshold])
         
         # run again, only calculating/preserving components > threshold
-        pca = skl_pca(n_components=num_good_comps+1)
+        pca = skl_pca(n_components=num_good_comps + 1)
         pca = pca.fit(data)
         
         feature_scores = pca.components_.T  # transform to get n_features rows by n_components columns
@@ -854,114 +677,7 @@ class pca_bundle(object):
         if isinstance(high, basestring): high = c(high)
         return self._make_colormap([low, c('white'), 0.5, c('white'), high])
 
-    def boxplot_single1(self, component=0, number_boxplots=3, tag=None):
-        number_boxplots = 1
-        SAMPLE_ALPHA = 1.0
-        print 'BOXPLOT:'
-        print '\tcomponent:', component
-        np_feat_names = np.array([self.feature_names]).T
-        comp_score = np.array([self.feature_scores[:, component]]).T
-#         print comp_score.shape
-#         print np_feat_names.shape
-        feature_names_comp = np.concatenate((np_feat_names, comp_score), axis=1)
-#         print self.feature_names[0:3]
-#         print self.feature_scores[0:3]
-#         print comp_score[0:3]
-        a = feature_names_comp.tolist()
-#         for i in a:
-#             print i
-        a = sorted(a, key=lambda x: abs(float(x[1])), reverse=True)
-#         for i in a:
-#             print i
-        feature_names_to_plot = [x[0] for x in a[0:number_boxplots]]
-#         print feature_names_to_plot
-        
-        fig, axarr = plt.subplots(number_boxplots, 2, sharex=True, sharey=False)
-        fig.suptitle('boxplot comp' + str(component) + ' significant features')
 
-        for j, feat in enumerate(feature_names_to_plot):
-            boxplot_data = []
-            feat_index = self.feature_names.index(feat)
-            type_data_dict = {}
-            orderseen = []
-            for i, sample in enumerate(self.run_sample_names):
-                sample_type = self.sample_name_to_type(sample)
-                if sample_type in type_data_dict.keys():
-                    type_data_dict[sample_type] += [self.data[i][feat_index]]
-                else:
-                    type_data_dict[sample_type] = [self.data[i][feat_index]]
-                    orderseen += [sample_type]
-            print feat,
-            print feat_index
-            print type_data_dict.items()
-            print orderseen
-            print '++++\n'
-            for typesamp in orderseen:
-                boxplot_data += [type_data_dict[typesamp]]
-            ax = axarr[j][0]
-            ax.boxplot(boxplot_data)
-            ax.set_xticklabels(orderseen)
-            ax.get_xaxis().tick_bottom()  # remove top ticks
-            ax.get_yaxis().tick_left()  # remove right ticks
-            ax.set_title(feat)
-            axarr[j][1].set_axis_off()
-
-        # ADD COMPONENT SAMPLE PCA SCORES, COLORBAR
-        #=======================================================================
-        ax_samp = fig.add_subplot(1, 2, 2)
-
-        scores = self.sample_scores
-        seen = set()
-        print "SAMPLE SCORES:", scores.shape
-        for n in range(scores.shape[0]):  # iterate through sample score positions
-            type_label = self.sample_name_to_type(self.run_sample_names[n])
-            colorRBGA = self.type_to_color(type_label)
-    #         print type_label, " : ", colorRBGA
-#                ax.plot(sample_scores[0:5,n],np.ones(5)*n,'d', markersize=30, color='blue',\
-#                      alpha=0.5, type_label='hESC')
-#             print [0,scores[n,component]]
-            ax_samp.plot(0, scores[n, component], 'D', markersize=15, color=colorRBGA, alpha=SAMPLE_ALPHA, label=type_label + '000' if type_label not in seen else "")
-            seen.add(type_label)  #=======================================================================
-        ax_samp.set_xlabel('Sample Scores\tFeature Scores')
-        ax_samp.get_xaxis().set_ticks([])
-        
-        feat_scores = self.feature_scores
-#         print "FEAT SCORES:",feat_scores.shape
-        
-        loadvals = [x for x in feat_scores[:, component]]
-#         abs_loadvals = [abs(x) for x in loadvals]
-        cm = plt.get_cmap('RdBu')
-        color_range = [cm(x + .5)[:-1] for x in loadvals]
-    #     print 'loadvals',len(loadvals),loadvals
-    #     print 'features',len(features),features
-    #     print 'colors',len(color_range),color_range
-        feature_data = sorted(zip(self.feature_names, loadvals, color_range), key=lambda x: x[1])
-        SCALAR = 5
-        for n in range(len(feature_data)):  # iterate through feature score positions
-    #         print type_label, " : ", colorRBGA
-#                ax.plot(sample_scores[0:5,n],np.ones(5)*n,'d', markersize=30, color='blue',\
-#                      alpha=0.5, type_label='hESC')
-#             print [0,scores[n,component]]
-            this_feature = feature_data[n][0]
-#             if this_feature in feature_names_to_plot:
-#                 print this_feature,'DFADFDS', feature_data[n][1]
-            ax_samp.plot(1, feature_data[n][1] * SCALAR, \
-                         's' if this_feature in feature_names_to_plot else '.', \
-                         color=feature_data[n][2], \
-                         label=this_feature if this_feature in feature_names_to_plot else None)
-            if this_feature in feature_names_to_plot:
-                ax_samp.annotate(s='  ' + feature_data[n][0] + '  ',
-                            xy=(1, feature_data[n][1] * SCALAR),
-#                             horizontalalignment = 'left' if feature_data[i][1] > 0 else 'right', 
-#                             verticalalignment = 'center',
-                            fontsize='8')
-#             ax_feat.plot([0,scores[n,component]],'D',markersize=15, color=colorRBGA, alpha=0.5, label = type_label if type_label not in seen else "")
-#             seen.add(type_label)
-        ax_samp.set_xbound((-0.5, 1.5))
-        plt.savefig(self._avoid_overwrite(self.savedir + tag + 'boxplot_comp' + str(component) + '.pdf'), bbox_inches="tight")
-        plt.legend(loc='best', bbox_to_anchor=(.85, .4, 1, 1))
-
-        plt.clf()
 
     def _avoid_overwrite(self, save_location):
         inc = 1

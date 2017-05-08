@@ -26,7 +26,7 @@ class dataio(object):
                 samples_names[j] corresponds to j-th row of data: data[j][:]
     '''
     
-    #potential cm options: spectral, viridis, plamsa, magma
+    # potential cm options: spectral, viridis, plamsa, magma
     type_colormap = 'spectral'
 
     def generate_savedir(self):
@@ -41,10 +41,10 @@ class dataio(object):
         '''
         timestamp_day = time.strftime('%b_%d_%y')
         timestamp_run = time.strftime('%H_%M_%S')
-        output_dir = sys.path[0]+'/output/'
+        output_dir = sys.path[0] + '/output/'
         if not os.path.isdir(output_dir):
             os.mkdir(output_dir)
-        output_dir = sys.path[0]+'/output/'+timestamp_day+'/'
+        output_dir = sys.path[0] + '/output/' + timestamp_day + '/'
         if not os.path.isdir(output_dir):
             os.mkdir(output_dir)
         output_dir += timestamp_run + '/'
@@ -115,28 +115,28 @@ class dataio(object):
                          [ 5.  1.  8.]]
                     
         """
-        #open file, split into lines
+        # open file, split into lines
         file_lines = self._open_file()
         
-        #remove comments
-        file_lines = [x for x in file_lines if x and x.strip()[0]!='#']
-        #pop first line to retrieve sample names, split by space
+        # remove comments
+        file_lines = [x for x in file_lines if x and x.strip()[0] != '#']
+        # pop first line to retrieve sample names, split by space
         feature_lbls = file_lines.pop(0).strip().split()
 
-        #parse body of data: feature_name \t data.1 \t data.2 ... data.n_samples
+        # parse body of data: feature_name \t data.1 \t data.2 ... data.n_samples
         sample_lbls, rawdata = [], []
         for line in [l.split() for l in file_lines]:
             sample_lbls.append(line.pop(0))
-            #check correct number of data points
-            assert (len(line) == len(feature_lbls)),"Data Format Error: incorrect number of samples for "+\
-                sample_lbls.pop()+":"+str(len(line))+"!="+str(len(feature_lbls))
-            rawdata.append(map(np.float64,line))
+            # check correct number of data points
+            assert (len(line) == len(feature_lbls)), "Data Format Error: incorrect number of samples for " + \
+                sample_lbls.pop() + ":" + str(len(line)) + "!=" + str(len(feature_lbls))
+            rawdata.append(map(np.float64, line))
         rawdata = np.array(rawdata)   
         
         if self.verbose:
-            print '\tdata:',rawdata.shape
-            print '\tsamples:',len(sample_lbls),'\t', sample_lbls[0],'...',sample_lbls[-1]
-            print '\tfeatures:',len(feature_lbls),'\t',feature_lbls[0],'...',feature_lbls[-1]  
+            print '\tdata:', rawdata.shape
+            print '\tsamples:', len(sample_lbls), '\t', sample_lbls[0], '...', sample_lbls[-1]
+            print '\tfeatures:', len(feature_lbls), '\t', feature_lbls[0], '...', feature_lbls[-1]  
         
         return sample_lbls, feature_lbls, rawdata
 
@@ -219,18 +219,18 @@ class dataio(object):
 
         list_of_types = self._remove_duplicates_inorder([x.split('_')[0] for x in self.sample_names])
         types = []
-        for i,t in enumerate(list_of_types):
+        for i, t in enumerate(list_of_types):
             types.append({})
             types[i]['name'] = t
             types[i]['samp_indices'] = temp_type_dict[t]['samp_indices']
 
         types = self._init_colors_for_types(types)
         if self.verbose:
-            print '\tsplitting samples into',len(types),'types:'
+            print '\tsplitting samples into', len(types), 'types:'
             for i, t in enumerate(types):
-                print '\t  [',i,']', t['name'],':'
-                print '\t\t  samp_indices:',len(t['samp_indices']),'samples, indices',t['samp_indices']
-                print '\t\t  color: (%1.2f, %1.2f, %1.2f)' % (t['color'][0], t['color'][1],t['color'][2])
+                print '\t  [', i, ']', t['name'], ':'
+                print '\t\t  samp_indices:', len(t['samp_indices']), 'samples, indices', t['samp_indices']
+                print '\t\t  color: (%1.2f, %1.2f, %1.2f)' % (t['color'][0], t['color'][1], t['color'][2])
                 
         return types
 
@@ -239,7 +239,7 @@ class dataio(object):
         '''
         cm = get_cmap(self.type_colormap)
 
-        label_colors_list = [(float(i) +.5) / len(types) for i in range(len(types))]
+        label_colors_list = [(float(i) + .5) / len(types) for i in range(len(types))]
         label_colors_list = [cm(x) for x in label_colors_list]
         
         for i, t in enumerate(types):
@@ -247,7 +247,7 @@ class dataio(object):
         
         return types
 
-    def _remove_duplicates_inorder(self,seq):
+    def _remove_duplicates_inorder(self, seq):
         '''remove duplicates from list, preserving order
         from: http://www.peterbe.com/plog/uniqifiers-benchmark and comments there
         '''
@@ -263,13 +263,13 @@ class dataio(object):
         '''TODO: decide to store these values in the dict or generate them later
         '''
         for i, tdict in enumerate(self.types):
-            tdict['feat_avg'] = np.mean(self.data[self.types[i]['samp_indices'],], axis=0)
-            tdict['feat_avg_raw'] = np.mean(self.rawdata[self.types[i]['samp_indices'],], axis=0)
+            tdict['feat_avg'] = np.mean(self.data[self.types[i]['samp_indices'], ], axis=0)
+            tdict['feat_avg_raw'] = np.mean(self.rawdata[self.types[i]['samp_indices'], ], axis=0)
     
-    def __init__(self, inputfile, use_types = True, verbose = True):
+    def __init__(self, inputfile, use_types=True, verbose=True):
         '''sets vars: savedir & (from inputfile:) data, feature_names, sample_names
         '''
-        np.set_printoptions(precision=2, threshold = 50)
+        np.set_printoptions(precision=2, threshold=50)
         
         if verbose: 
             print "\nINPUT: ", inputfile

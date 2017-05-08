@@ -103,7 +103,7 @@ class GLASSO_PCA(object):
     '''orchestrates all analytical functionality of the package
     '''
     
-    #these vars can be set for programmatic use (rather than cmd-line interactive use) 
+    # these vars can be set for programmatic use (rather than cmd-line interactive use) 
     INPUTFILE = 'all_clean.txt'
     PCA_COMP_VAR_THRESHOLD = 0.1
     GLASSO_ALPHA = -1
@@ -111,7 +111,7 @@ class GLASSO_PCA(object):
     
     def load(self):
         print 'starting glasso_pca load ....'
-        self.io = dataio(self.inputfile, use_types=True, verbose = self.verbose)
+        self.io = dataio(self.inputfile, use_types=True, verbose=self.verbose)
     
         self.pca = pca_bundle(self.io.savedir,
                             self.io.data,
@@ -119,16 +119,16 @@ class GLASSO_PCA(object):
                             self.io.feature_names,
                             self.io.sample_names,
                             self.io.types,
-                            comp_var_threshold = self.pca_comp_var_threshold,
-                            verbose = self.verbose)
+                            comp_var_threshold=self.pca_comp_var_threshold,
+                            verbose=self.verbose)
         
-        self.gl = glasso_bundle(self.io.savedir, 
-                                self.io.data, 
-                                self.io.rawdata, 
-                                self.io.types, 
-                                self.io.feature_names, 
-                                alpha = self.gl_alpha,
-                                verbose = self.verbose)
+        self.gl = glasso_bundle(self.io.savedir,
+                                self.io.data,
+                                self.io.rawdata,
+                                self.io.types,
+                                self.io.feature_names,
+                                alpha=self.gl_alpha,
+                                verbose=self.verbose)
 #         gl.network_plot(draw_labels=True, glasso_only = True, node_size_selector ='default')
 #     #     gl.network_plot(draw_labels=True, glasso_only = True, node_size_selector ='network_edge_weight')
 #     #     gl.network_plot(draw_labels=True, glasso_only = True, node_size_selector ='delta_conc_scaled')
@@ -191,24 +191,24 @@ class GLASSO_PCA(object):
     
     def quick(self):
         print "Running PCA on sequential type pairs:"
-        for x in range(len(self.pca.types)-1):
-            select_types = [x,x+1]
+        for x in range(len(self.pca.types) - 1):
+            select_types = [x, x + 1]
             print 'Running PCA...'
-            self.pca.run_pca(select_types = select_types)
+            self.pca.run_pca(select_types=select_types)
             print '...done'
             
             print 'Generating Graphs...'
-            pca_folder = 'pca_plots/'+self.pca.types[select_types[0]]['name']+'_'+self.pca.types[select_types[1]]['name']+'/'
+            pca_folder = 'pca_plots/' + self.pca.types[select_types[0]]['name'] + '_' + self.pca.types[select_types[1]]['name'] + '/'
             self.pca.comps_plot_1d(folder=pca_folder)
             self.pca.comps_explained_var_plot(folder=pca_folder, tag='')
-            self.gl.load_pca_data(self.pca.feature_scores_dict, self.pca.run_types_by_num, pca_component = 0)
-            self.gl.network_plot(glasso_only = False,
-                                    node_color_selector    = 'pca_type',
-                                    node_size_selector     = 'delta_conc_scaled',
-                                    draw_labels            = True,
-                                    show_disconnected_nodes= True,
-                                    folder                 = pca_folder,
-                                    tag                    = '')
+            self.gl.load_pca_data(self.pca.feature_scores_dict, self.pca.run_types_by_num, pca_component=0)
+            self.gl.network_plot(glasso_only=False,
+                                    node_color_selector='pca_type',
+                                    node_size_selector='delta_conc_scaled',
+                                    draw_labels=True,
+                                    show_disconnected_nodes=True,
+                                    folder=pca_folder,
+                                    tag='')
             print '...done'
             print"-----------------------"
 
@@ -240,7 +240,7 @@ class GLASSO_PCA(object):
 
     
 #     def old_code(self):
-        #sorted(zip(features, loadvals, color_range), key = lambda x: x[1])
+        # sorted(zip(features, loadvals, color_range), key = lambda x: x[1])
     #     for j, fd in enumerate(feature_data_list):
     #         if j %2 ==0:
     #             feats = [x[0] for x in fd]

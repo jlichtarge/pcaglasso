@@ -12,7 +12,13 @@ clean up all functions in use
 remove non-used functions
 
 boxplots
-
+5/7/17
+Still TODO:
+Clean / finish interactive component
+Go through file by file and clean up code
+investigate 'without types' functionality
+finish up with interactive console
+ - especially: running pca with types, overlaying PCA data on glasso
 '''
 
 
@@ -22,10 +28,10 @@ def main():
     gl_alpha = args.glalpha if args.glalpha else -1
     pca_comp_var_threshold = args.pca_threshold if args.pca_threshold else 0.1
     
-    gp = GLASSO_PCA(inputfile = args.filename,
-                   verbose = not(args.q or args.quiet),
-                   gl_alpha = gl_alpha,
-                   pca_comp_var_threshold = pca_comp_var_threshold)
+    gp = GLASSO_PCA(inputfile=args.filename,
+                   verbose=not(args.q or args.quiet),
+                   gl_alpha=gl_alpha,
+                   pca_comp_var_threshold=pca_comp_var_threshold)
     gp.load()
     if not args.no_plots:
         if not args.no_glasso_plots: gp.glasso_plots()

@@ -13,12 +13,12 @@ class Prompt(Cmd):
         \n\t-no_labels\
         \n\t\tturn off node labeling\
         \n\t-only_connected_nodes\
-        \n\t\tonly show major connected component of graph'
-#         \n\t-nc_pca\
-#         \n\t\tset node color: PCA score for intensity, PCA-associated type for color\
-#         \n\t-ns_delta_conc\
-#         \n\t\tset node size to be change in concentration over last PCA pairing\
-#         \n\t\tdefault: constant'
+        \n\t\tonly show major connected component of graph\
+        \n\t-nc_pca\
+        \n\t\tset node color: PCA score for intensity, PCA-associated type for color\
+        \n\t-ns_delta_conc\
+        \n\t\tset node size to be change in concentration over last PCA pairing\
+        \n\t\tdefault: constant'
      
     def do_network(self, args):
         """Generates glasso network"""
@@ -31,19 +31,19 @@ class Prompt(Cmd):
         nsize = 'pca_type' if '-nc_pca' in args else 'default' 
 
         print 'Generating network...'
-        self.gp.gl.network_plot(glasso_only = glasso_only,
-                                node_color_selector    = ncolor,
-                                node_size_selector     = nsize,
-                                draw_labels            = not no_labels,
-                                show_disconnected_nodes= not only_connected_nodes,
-                                tag                    = '')
+        self.gp.gl.network_plot(glasso_only=glasso_only,
+                                node_color_selector=ncolor,
+                                node_size_selector=nsize,
+                                draw_labels=not no_labels,
+                                show_disconnected_nodes=not only_connected_nodes,
+                                tag='')
         print '...done'
     
     def help_pca_pair(self):
         print "Runs PCA on selected type pair"
         print "Generates PCA type-specific graphs, and PCA-overlaid glasso network"
         print 'selected types must be space-separated ints (ex: \'pca_pair 0 1\')'
-        print 'selection options',range(len(self.gp.pca.types))
+        print 'selection options', range(len(self.gp.pca.types))
         print 'usage: pca_pair [0 1 2 3 4] --> choose 2'
         print 'example: \'pca_pair 0 1\''
 
@@ -51,8 +51,9 @@ class Prompt(Cmd):
         """Runs PCA on selected type pair"""
         print len(self.gp.pca.types)
         if len(args) == 0:
-            print "wrong number of args, try again"
+            print "No types manually selected: defaulting to 0,1"
             print "example: \'run_pca 0 1\'"
+            self.help_pca_pair()
             return
         else:
             args = args.split()
@@ -65,26 +66,26 @@ class Prompt(Cmd):
                 return
             if (select_types[0] < 0) or (select_types[-1] > len(self.gp.pca.types)):
                 print 'selected types out of range...\
-                        \n\tmust be selected from available types: ',range(len(self.gp.pca.types))
+                        \n\tmust be selected from available types: ', range(len(self.gp.pca.types))
                 return
-            print 'Parsing selected types:', args,'->',select_types
+            print 'Parsing selected types:', args, '->', select_types
         
         print 'Running PCA...'
-        self.gp.pca.run_pca(select_types = select_types)
+        self.gp.pca.run_pca(select_types=select_types)
         print '...done'
         
         print 'Generating Graphs...'
-        pca_folder = 'pca_plots/'+self.gp.pca.types[select_types[0]]['name']+'_'+self.gp.pca.types[select_types[1]]['name']+'/'
+        pca_folder = 'pca_plots/' + self.gp.pca.types[select_types[0]]['name'] + '_' + self.gp.pca.types[select_types[1]]['name'] + '/'
         self.gp.pca.comps_plot_1d(folder=pca_folder)
         self.gp.pca.comps_explained_var_plot(folder=pca_folder, tag='')
-        self.gp.gl.load_pca_data(self.gp.pca.feature_scores_dict, self.gp.pca.run_types_by_num, pca_component = 0)
-        self.gp.gl.network_plot(glasso_only = False,
-                                node_color_selector    = 'pca_type',
-                                node_size_selector     = 'delta_conc_scaled',
-                                draw_labels            = True,
-                                show_disconnected_nodes= True,
-                                folder                 = pca_folder,
-                                tag                    = '')
+        self.gp.gl.load_pca_data(self.gp.pca.feature_scores_dict, self.gp.pca.run_types_by_num, pca_component=0)
+        self.gp.gl.network_plot(glasso_only=False,
+                                node_color_selector='pca_type',
+                                node_size_selector='delta_conc_scaled',
+                                draw_labels=True,
+                                show_disconnected_nodes=True,
+                                folder=pca_folder,
+                                tag='')
         print '...done'
 
     def do_q(self, args):

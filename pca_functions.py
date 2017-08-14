@@ -110,6 +110,9 @@ class pca_bundle(object):
         if show_legend:
             plt.legend(loc='center left', bbox_to_anchor=(.85, .4, 1, 1))
     #     if tag is not '' : tag = tag + " " # so no awkward space at start of file
+        
+        if not path.isdir(self.savedir + folder.split('/')[0]):
+            mkdir(self.savedir + folder.split('/')[0])
         if not path.isdir(self.savedir + folder):
             mkdir(self.savedir + folder)
         plt.savefig(self._avoid_overwrite(self.savedir + folder + 'comps_plot_1d' + tag + '.pdf'), bbox_inches="tight")
@@ -707,7 +710,7 @@ class pca_bundle(object):
         
         self.verbose = verbose
         self.comp_var_threshold = comp_var_threshold
-#         self.run_pca(select_types, max_comps, comp_var_threshold, verbose)
+#         self.run_pca([0,1])
         if verbose:
             print 'PCA: \n\tinitialized'
         

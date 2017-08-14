@@ -145,7 +145,7 @@ class glasso_bundle(object):
                 
         Notes
         ----------
-        unless specified by flag show_disconnected_nodes, unconnected nodes
+        unless specified by flag only_conn_comp, unconnected nodes
             will not be displayed. Though they are not captured in the GLASSO network,
             it may be valuable to display the disconnected nodes as well 
             in order to visualize their PCA scores, and relative concentrations.
@@ -310,7 +310,7 @@ class glasso_bundle(object):
                      node_color_selector='default',
                      node_size_selector='default',
                      draw_labels=True,
-                     show_disconnected_nodes=True,
+                     only_conn_comp=False,
                      folder='',
                      tag=''):
         '''TODO: document, modularize further, add legend w colors/type for PCA ones
@@ -318,7 +318,7 @@ class glasso_bundle(object):
         D = self.D
         
         nodes_with_edges = list(set(sum(D.edges(), ())))
-        nodes_to_show = D.nodes() if show_disconnected_nodes else nodes_with_edges
+        nodes_to_show = nodes_with_edges if only_conn_comp else D.nodes()
 
         if self.verbose:
             print '\tprecision matrix:', self.prec.shape 
@@ -330,7 +330,7 @@ class glasso_bundle(object):
         ax = fig.add_subplot(111)
         ax.set_xlim([-0.05, 1.05])
         ax.set_ylim([-0.05, 1.05])
-        if show_disconnected_nodes:
+        if not only_conn_comp:
             ax.set_xlim([-0.25, 1.25])
             ax.set_ylim([-0.25, 1.25])
         
@@ -346,8 +346,8 @@ class glasso_bundle(object):
             saveinfo += '_' + node_size_selector
         if node_color_selector is not 'default':
             saveinfo += '_' + node_color_selector
-        if show_disconnected_nodes:
-            saveinfo += '_all'
+        if only_conn_comp:
+            saveinfo += '_cc'
         if not glasso_only:
             saveinfo += '_comp' + str(self.component + 1) + '_types' + reduce(lambda w, y: w + y, map(lambda x: str(x), self.current_type_combo))
         
@@ -368,10 +368,10 @@ class glasso_bundle(object):
         '''
         inc = 1
         while path.isfile(save_location):
-            save_location = save_location.rstrip('.pdf')
+            save_location, file_type = save_location.rsplit('.', 1)
             if inc != 1:
                 save_location = save_location.rsplit('_', 1)[0]
-            save_location = save_location + '_' + str(inc) + '.pdf'
+            save_location = save_location + '_' + str(inc) + '.' + file_type
             inc += 1
         return save_location
     
@@ -434,6 +434,7 @@ class glasso_bundle(object):
         self.verbose = verbose
         self.pos = pos
 
+        #Initialize to the first two types for pairwise analysis
         self.current_type_combo = [0, 1]  
         self.component = 0
         

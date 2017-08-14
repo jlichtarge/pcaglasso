@@ -110,6 +110,7 @@ class GLASSO_PCA(object):
     
     
     def load(self):
+        
         print 'starting glasso_pca load ....'
         self.io = dataio(self.inputfile, use_types=True, verbose=self.verbose)
     
@@ -203,16 +204,15 @@ class GLASSO_PCA(object):
             self.pca.comps_explained_var_plot(folder=pca_folder, tag='')
             self.gl.load_pca_data(self.pca.feature_scores_dict, self.pca.run_types_by_num, pca_component=0)
             self.gl.network_plot(glasso_only=False,
-                                    node_color_selector='pca_type',
-                                    node_size_selector='delta_conc_scaled',
-                                    draw_labels=True,
-                                    show_disconnected_nodes=True,
-                                    folder=pca_folder,
-                                    tag='')
+                                 node_color_selector='pca_type',
+                                 node_size_selector='delta_conc_scaled',
+                                 draw_labels=True,
+                                 only_conn_comp=False,
+                                 folder=pca_folder,
+                                 tag='')
             print '...done'
             print"-----------------------"
-
-        
+  
     def glasso_plots(self):
         glasso_folder = 'glasso_plots/'
         self.gl.network_plot(draw_labels=True,

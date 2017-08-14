@@ -50,41 +50,35 @@ def parseArgs():
     '''Parses input arguments. Run 'python main.py -h' for descriptions
     '''
     parser = argparse.ArgumentParser()
-    parser.add_argument("filename", help="the input file to be analyzed")
-    parser.add_argument("-q",
-                        help="Suppress stdout printouts through analysis, calculation. Default = verbose",
-                        action="store_true")
-    parser.add_argument("-quiet",
-                        help="Suppress stdout printouts through analysis, calculation. Default = verbose",
-                        action="store_true")
-    parser.add_argument("-i",
-                        help="Following load, enter interactive console to generate graphs with more finely-tuned parameters.",
-                        action="store_true")
-    parser.add_argument("-interact",
-                        help="Following load, enter interactive console to generate graphs with more finely-tuned parameters.",
-                        action="store_true")
-    parser.add_argument("-quick",
-                        help="Run PCA over sequential pairs of input types, generating PCA-glasso plots for each.\
-                        \nFor 5 input types, pairs will be (0,1) (1,2) (2,3) (3,4)",
-                        action="store_true")
-    parser.add_argument("-glalpha",
-                        help="Set alpha parameter for GLASSO. Must be >= 0. Default: selected by cross validation",
+    parser.add_argument('filename', help='the input file to be analyzed')
+    parser.add_argument('-quiet',
+                        help='Suppress stdout printouts through analysis, calculation. Default = verbose',
+                        action='store_true')
+    parser.add_argument('-i','-interact',
+                        help='Following load, enter interactive console to generate graphs with more finely-tuned parameters.',
+                        action='store_true')
+    parser.add_argument('-quick',
+                        help='Run PCA over sequential pairs of input types, generating PCA-glasso plots for each.\
+                        \nFor 5 input types, pairs will be (0,1) (1,2) (2,3) (3,4)',
+                        action='store_true')
+    parser.add_argument('-glalpha',
+                        help='Set alpha parameter for GLASSO. Must be >= 0. Default: selected by cross validation',
                         type=float)
-    parser.add_argument("-pca_threshold",
-                        help="Threshold of explained variance for PCA components. Must be [0,1]. Only components above threshold will be analyzed. Default: 0.1",
+    parser.add_argument('-pca_threshold',
+                        help='Threshold of explained variance for PCA components. Must be [0,1]. Only components above threshold will be analyzed. Default: 0.1',
                         type=float)
-    parser.add_argument("-no_plots",
-                        help="Do not generate any plots on load. Creating plots will be an option from interactive console.",
-                        action="store_true")
-    parser.add_argument("-no_boxplots",
-                        help="Do not generate boxplots on load. Creating boxplots will be an option from interactive console.",
-                        action="store_true")
-    parser.add_argument("-no_pca_plots",
-                        help="Do not generate pca plots on load. Creating pca plots will be an option from interactive console.",
-                        action="store_true")
-    parser.add_argument("-no_glasso_plots",
-                        help="Do not generate glasso plots on load. Creating glasso plots will be an option from interactive console.",
-                        action="store_true")
+    parser.add_argument('-no_plots',
+                        help='Do not generate any plots on load. Creating plots will be an option from interactive console.',
+                        action='store_true')
+    parser.add_argument('-no_boxplots',
+                        help='Do not generate boxplots on load. Creating boxplots will be an option from interactive console.',
+                        action='store_true')
+    parser.add_argument('-no_pca_plots',
+                        help='Do not generate pca plots on load. Creating pca plots will be an option from interactive console.',
+                        action='store_true')
+    parser.add_argument('-no_glasso_plots',
+                        help='Do not generate glasso plots on load. Creating glasso plots will be an option from interactive console.',
+                        action='store_true')
     args = parser.parse_args()
     
     if not os.path.isfile(args.filename):
